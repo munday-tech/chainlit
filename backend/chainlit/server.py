@@ -688,7 +688,7 @@ async def update_feedback(
         raise HTTPException(status_code=500, detail="Data persistence is not enabled")
 
     try:
-        feedback_id = await data_layer.upsert_feedback(feedback=update.feedback)
+        feedback_id = await data_layer.upsert_feedback(feedback=update.feedback, current_user=current_user)
     except Exception as e:
         raise HTTPException(detail=str(e), status_code=500)
 

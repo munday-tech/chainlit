@@ -254,6 +254,8 @@ class WebsocketSession(BaseSession):
 
         ws_sessions_id[self.id] = self
         ws_sessions_sid[socket_id] = self
+        if self.user:
+            ws_sessions_user[self.user.identifier] = self
 
         self.languages = languages
 
@@ -270,6 +272,8 @@ class WebsocketSession(BaseSession):
             shutil.rmtree(self.files_dir)
         ws_sessions_sid.pop(self.socket_id, None)
         ws_sessions_id.pop(self.id, None)
+        if self.user:
+            ws_sessions_user.pop(self.user.identifier, None) 
 
     async def flush_method_queue(self):
         for method_name, queue in self.thread_queues.items():
@@ -300,3 +304,4 @@ class WebsocketSession(BaseSession):
 
 ws_sessions_sid: Dict[str, WebsocketSession] = {}
 ws_sessions_id: Dict[str, WebsocketSession] = {}
+ws_sessions_user: Dict[str, WebsocketSession] = {}
