@@ -2,6 +2,9 @@ import { useEffect, useState } from 'react';
 
 import { Logo } from '@/components/Logo';
 import { useTranslation } from '@/components/i18n/Translator';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import Calendar from '@/components/Calendar';
 
 export default function Intranet() {
   const [Component, setComponent] = useState<React.ComponentType<any>>();
@@ -42,12 +45,52 @@ export default function Intranet() {
 
   const Element = Component;
 
+  const latestArticles = [
+    'Welcome to the intranet',
+    'How to request PTO',
+    'Quarterly results',
+    'New office policy',
+    'Benefits overview'
+  ];
+
+  const ArticleBubble = ({ title }: { title: string }) => (
+    <Button variant="outline" className="w-fit rounded-3xl" size="sm">
+      <p className="text-sm text-muted-foreground truncate">{title}</p>
+    </Button>
+  );
+
   return (
-    <div className="h-screen w-screen flex items-center justify-center relative p-4">
-      {Element ? <Element {...props} /> : <Logo className="w-52" />}
-      <p className="fixed bottom-24 right-8 text-sm text-muted-foreground">
-        {t('intranet.placeholder')}
-      </p>
+    <div className="flex flex-col h-screen w-screen">
+      <header className="flex items-center justify-between p-4 border-b">
+        <Logo className="h-10" />
+        <Input
+          type="search"
+          placeholder={t('intranet.searchPlaceholder')}
+          className="max-w-xs"
+        />
+      </header>
+      <div className="p-4 flex flex-wrap gap-2 justify-center border-b">
+        {latestArticles.slice(0, 5).map((a, i) => (
+          <ArticleBubble key={i} title={a} />
+        ))}
+      </div>
+      <div className="flex flex-grow overflow-hidden">
+        <div className="flex-1 flex flex-col items-center overflow-auto p-4">
+          {Element ? (
+            <Element {...props} />
+          ) : (
+            <div className="flex flex-col items-center justify-center gap-2 mt-10">
+              <Logo className="w-52" />
+              <p className="text-sm text-muted-foreground">
+                {t('intranet.placeholder')}
+              </p>
+            </div>
+          )}
+        </div>
+        <div className="w-80 p-4 border-l overflow-auto hidden md:block">
+          <Calendar />
+        </div>
+      </div>
     </div>
   );
 }

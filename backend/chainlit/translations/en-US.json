@@ -212,6 +212,7 @@
     "best-practice": "Best Practice"
   },
   "intranet": {
-    "placeholder": "Have a chat to get started"
+    "placeholder": "Have a chat to get started",
+    "searchPlaceholder": "Search intranet..."
   }
 }
