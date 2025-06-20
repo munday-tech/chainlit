@@ -1,54 +1,52 @@
 import { useEffect, useState } from 'react';
-import { Logo } from '@/components/Logo';
 
-interface Article {
-  title: string;
-  paragraphs: string[];
-}
+import { Logo } from '@/components/Logo';
+import { useTranslation } from '@/components/i18n';
 
 export default function Intranet() {
-  const [article, setArticle] = useState<Article | null>(null);
+  const [Component, setComponent] = useState<React.ComponentType<any>>();
+  const [props, setProps] = useState<Record<string, unknown>>({});
+  const { t } = useTranslation();
 
   useEffect(() => {
-    // Mount copilot widget when available
-    if (window.mountChainlitWidget) {
-      window.mountChainlitWidget({ chainlitServer: window.location.origin });
+    const w = window as any;
+    if (w.mountChainlitWidget) {
+      w.mountChainlitWidget({ chainlitServer: window.location.origin });
     }
-    const handler = (e: any) => {
+
+    const handler = async (e: any) => {
       const { name, args, callback } = e.detail;
-      if (name === 'render_article') {
-        setArticle({
-          title: args.title,
-          paragraphs: args.paragraphs || [],
-        });
-        if (callback) callback({ success: true });
+      if (name === 'render_element' && args?.component) {
+        try {
+          const mod = await import(
+            /* @vite-ignore */ `/elements/${args.component}.jsx`
+          );
+          setComponent(() => mod.default);
+          setProps(args.props || {});
+          callback?.({ success: true });
+        } catch (err) {
+          console.error(err);
+          callback?.({ success: false, error: String(err) });
+        }
       }
     };
+
     window.addEventListener('chainlit-call-fn', handler);
     return () => {
       window.removeEventListener('chainlit-call-fn', handler);
-      if (window.unmountChainlitWidget) {
-        window.unmountChainlitWidget();
+      if (w.unmountChainlitWidget) {
+        w.unmountChainlitWidget();
       }
     };
   }, []);
 
+  const Element = Component;
+
   return (
-    <div className="h-screen w-screen flex items-center justify-center relative">
-      {article ? (
-        <div className="max-w-2xl p-4">
-          <h1 className="text-3xl font-bold mb-4">{article.title}</h1>
-          {article.paragraphs.map((p, i) => (
-            <p key={i} className="mb-2">
-              {p}
-            </p>
-          ))}
-        </div>
-      ) : (
-        <Logo className="w-52" />
-      )}
+    <div className="h-screen w-screen flex items-center justify-center relative p-4">
+      {Element ? <Element {...props} /> : <Logo className="w-52" />}
       <p className="fixed bottom-24 right-8 text-sm text-muted-foreground">
-        Have a chat to get started
+        {t('intranet.placeholder')}
       </p>
     </div>
   );
