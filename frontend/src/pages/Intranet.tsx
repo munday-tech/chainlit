@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { Logo } from '@/components/Logo';
-import { useTranslation } from '@/components/i18n';
+import { useTranslation } from '@/components/i18n/Translator';
 
 export default function Intranet() {
   const [Component, setComponent] = useState<React.ComponentType<any>>();
